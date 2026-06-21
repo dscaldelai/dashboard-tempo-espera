@@ -9,8 +9,7 @@ st.set_page_config(layout="wide")
 st.title("📊 Análise de Tempo de Espera")
 st.markdown("*A unidade de tempo utilizada: Minutos *")
 
-arquivo = Path(__file__).parent / "dados.xlsx"
-df = pd.read_excel(arquivo)
+df=pd.read_excel('dados.xlsx')
 df = df.sort_values(by="Servico")
 
 #campo de seleçã e filtro dos dados
