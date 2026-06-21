@@ -2,15 +2,6 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 
-st.set_page_config(layout="wide")
-
-#bibliotecas
-import pandas as pd
-import streamlit as st
-import plotly.express as px
-from pathlib import Path
-
-
 #configurando o layout da página
 st.set_page_config(layout="wide")
 
