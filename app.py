@@ -10,10 +10,9 @@ st.markdown("*A unidade de tempo utilizada: Minutos *")
 
 df=pd.read_excel('dados.xlsx')
 df_excel_original = df.copy()
-df_gantt = df_excel_original.copy()
 
-df_gantt = df_gantt.sort_values(by="Servico")
 df = df.sort_values(by="Servico")
+
 
 #campo de seleçã e filtro dos dados
 Servicos=st.multiselect("Selecione o tipo de Serviço",df["Servico"].unique())
@@ -104,21 +103,21 @@ graf1, graf2, graf3 = st.columns(3)
 
 with graf1:
     fig_espera = px.box(df, y="Total Espera segundos", 
-                        title="Tempo de Espera",
+                        title="Distribuição: Tempo de Espera (Geral)",
                         labels={"Total Espera segundos": "Minutos"})
     fig_espera.update_layout(showlegend=False)
     st.plotly_chart(fig_espera, use_container_width=True)
 
 with graf2:
     fig_atend = px.box(df, y="Total Atendimento segundos", 
-                       title="Tempo de Atendimento",
+                       title="Distribuição: Tempo de Atendimento",
                        labels={"Total Atendimento segundos": "Minutos", "Servico": "Serviço"})
     fig_atend.update_layout(showlegend=False)
     st.plotly_chart(fig_atend, use_container_width=True)
 
 with graf3:
     fig_proc = px.box(df, y="Tempo processo", 
-                      title="Tempo Total Processo",
+                      title="Distribuição: Tempo Total Processo",
                       labels={"Tempo processo": "Minutos", "Servico": "Serviço"})
     fig_proc.update_layout(showlegend=False)
     st.plotly_chart(fig_proc, use_container_width=True)
@@ -203,11 +202,17 @@ fig_dispersao_processo.update_layout(
 st.plotly_chart(fig_dispersao_processo, use_container_width=True)
 
 
+
+
 # ----------------- NOVA SEÇÃO: JORNADA DO PACIENTE (GRÁFICO DE GANTT) -----------------
 st.markdown("---")
 st.subheader("Linha do Tempo e Jornada do Atendimento (Gantt)")
 
 
+
+# 1. TRATAMENTO DOS DADOS PARA CRIAR O CRONOGRAMA
+# Vamos criar cópias para não afetar o restante do dashboard
+df_gantt = df_excel_original.copy()
 
 #campo de seleção e filtro dos dados
 Dias=st.multiselect("Selecione uma data para análise da linha do tempo",df_gantt["data"].unique())
