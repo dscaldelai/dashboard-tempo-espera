@@ -220,6 +220,7 @@ if Dias:
     df_gantt=df_gantt[df_gantt["data"].isin(Dias)]
     df_gantt = df_gantt.sort_values(by="data")
     Servicos=st.multiselect("Selecione o tipo de Serviço",df_gantt["Servico"].unique())
+    df_gantt = df_gantt.sort_values(by="hora")
 if Servicos:
     df_gantt=df_gantt[df_gantt["Servico"].isin(Servicos)]
 
