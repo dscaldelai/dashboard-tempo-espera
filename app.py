@@ -2,7 +2,6 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 
-#configurando o layout da página
 st.set_page_config(layout="wide")
 
 
@@ -10,6 +9,8 @@ st.title("📊 Análise de Tempo de Espera")
 st.markdown("*A unidade de tempo utilizada: Minutos *")
 
 df=pd.read_excel('dados.xlsx')
+df_excel_original = df.copy()
+
 df = df.sort_values(by="Servico")
 
 #campo de seleçã e filtro dos dados
@@ -100,26 +101,174 @@ st.subheader("📊 Distribuição e Outliers (Boxplot)")
 graf1, graf2, graf3 = st.columns(3)
 
 with graf1:
-    # x="Servico" faz criar um boxplot para cada serviço selecionado lado a lado
-    fig_espera = px.box(df, x="Servico", y="Total Espera segundos", 
-                        title="Tempo de Espera",
-                        labels={"Total Espera segundos": "Minutos", "Servico": "Serviço"},
-                        color="Servico") # Cores diferentes por serviço
+    fig_espera = px.box(df, y="Total Espera segundos", 
+                        title="Distribuição: Tempo de Espera (Geral)",
+                        labels={"Total Espera segundos": "Minutos"})
     fig_espera.update_layout(showlegend=False)
     st.plotly_chart(fig_espera, use_container_width=True)
 
 with graf2:
-    fig_atend = px.box(df, x="Servico", y="Total Atendimento segundos", 
+    fig_atend = px.box(df, y="Total Atendimento segundos", 
                        title="Distribuição: Tempo de Atendimento",
-                       labels={"Total Atendimento segundos": "Minutos", "Servico": "Serviço"},
-                       color="Servico")
+                       labels={"Total Atendimento segundos": "Minutos", "Servico": "Serviço"})
     fig_atend.update_layout(showlegend=False)
     st.plotly_chart(fig_atend, use_container_width=True)
 
 with graf3:
-    fig_proc = px.box(df, x="Servico", y="Tempo processo", 
+    fig_proc = px.box(df, y="Tempo processo", 
                       title="Distribuição: Tempo Total Processo",
-                      labels={"Tempo processo": "Minutos", "Servico": "Serviço"},
-                      color="Servico")
+                      labels={"Tempo processo": "Minutos", "Servico": "Serviço"})
     fig_proc.update_layout(showlegend=False)
     st.plotly_chart(fig_proc, use_container_width=True)
+    
+# ----------------- NOVA SEÇÃO: GRÁFICO DE DISPERSÃO (PICO POR HORÁRIO) -----------------
+st.markdown("---")
+st.subheader("Tempo de Espera por Horário de Entrada")
+
+# 1. TRATAMENTO DOS DADOS: Converte para string apenas para garantir a ordenação no eixo X
+df['hora_str'] = df['hora'].astype(str)
+
+# Ordenamos o DataFrame para que o gráfico comece na madrugada e vá até a noite
+df_ordenado_hora = df.sort_values(by='hora_str')
+
+
+# 2. CRIANDO O GRÁFICO DE DISPERSÃO (Tempo de espera)
+fig_dispersao_entrada = px.scatter(
+    df_ordenado_hora, 
+    x="hora_str", # <-- Mudamos aqui para usar a coluna de texto ordenada
+    y="Total Espera segundos",
+    title="Relação: Horário de Entrada vs. Tempo de Espera",
+    labels={"hora_str": "Horário de Entrada", "Total Espera segundos": "Tempo de Espera (Minutos)"}, 
+    opacity=0.6,     
+    hover_data=["Servico"] 
+)
+
+# Ajustes no layout para o gráfico ficar mais limpo
+fig_dispersao_entrada.update_layout(
+    xaxis_tickangle=-45, # Inclina os horários no eixo X para não embolarem se houverem muitos
+    legend_title_text="Serviço" # Dá um nome bonito para a legenda lateral
+)
+
+# Renderiza o gráfico ocupando a largura total da tela
+st.plotly_chart(fig_dispersao_entrada, use_container_width=True)
+
+
+st.markdown("---")
+st.subheader("Tempo de Atendimento por Horário de Entrada")
+
+# 2. CRIANDO O GRÁFICO DE DISPERSÃO (Tempo de atendimento)
+fig_dispersao_atendimento = px.scatter(
+    df_ordenado_hora, 
+    x="hora_str", # <-- Mudamos aqui para usar a coluna de texto ordenada
+    y="Total Atendimento segundos",
+    title="Relação: Horário de Entrada vs. Tempo de Atendimento",
+    labels={"hora_str": "Horário de Entrada", "Total Atendimento segundos": "Tempo de Atendimento (Minutos)"}, 
+    opacity=0.6,     
+    hover_data=["Servico"] 
+)
+
+# Ajustes no layout para o gráfico ficar mais limpo
+fig_dispersao_atendimento.update_layout(
+    xaxis_tickangle=-45, # Inclina os horários no eixo X para não embolarem se houverem muitos
+    legend_title_text="Serviço" # Dá um nome bonito para a legenda lateral
+)
+
+# Renderiza o gráfico ocupando a largura total da tela
+st.plotly_chart(fig_dispersao_atendimento, use_container_width=True)
+
+
+st.markdown("---")
+st.subheader("Tempo total no processo por Horário de Entrada")
+
+# 2. CRIANDO O GRÁFICO DE DISPERSÃO (Tempo de atendimento)
+fig_dispersao_processo = px.scatter(
+    df_ordenado_hora, 
+    x="hora_str", # <-- Mudamos aqui para usar a coluna de texto ordenada
+    y="Tempo processo",
+    title="Relação: Horário de Entrada vs. Tempo no Processo",
+    labels={"hora_str": "Horário de Entrada", "Tempo processo": "Tempo no Processo (Minutos)"}, 
+    opacity=0.6,     
+    hover_data=["Servico"] 
+)
+
+# Ajustes no layout para o gráfico ficar mais limpo
+fig_dispersao_processo.update_layout(
+    xaxis_tickangle=-45, # Inclina os horários no eixo X para não embolarem se houverem muitos
+    legend_title_text="Serviço" # Dá um nome bonito para a legenda lateral
+)
+
+# Renderiza o gráfico ocupando a largura total da tela
+st.plotly_chart(fig_dispersao_processo, use_container_width=True)
+
+
+# ----------------- NOVA SEÇÃO: JORNADA DO PACIENTE (GRÁFICO DE GANTT) -----------------
+st.markdown("---")
+st.subheader("Linha do Tempo e Jornada do Atendimento (Gantt)")
+
+
+
+# 1. TRATAMENTO DOS DADOS PARA CRIAR O CRONOGRAMA
+# Vamos criar cópias para não afetar o restante do dashboard
+df_gantt = df_excel_original.copy()
+#df_gantt = df_gantt.sort_values(by="Servico")
+
+#campo de seleção e filtro dos dados
+Dias=st.multiselect("Selecione uma data para análise da linha do tempo",df_gantt["data"].unique())
+if Dias:
+    df_gantt=df_gantt[df_gantt["data"].isin(Dias)]
+    Servicos=st.multiselect("Selecione o tipo de Serviço",df_gantt["Servico"].unique())
+if Servicos:
+    df_gantt=df_gantt[df_gantt["Servico"].isin(Servicos)]
+
+st.metric("Frequência", f"{df_gantt['Servico'].count():,}")
+
+# Garantimos que a data e a hora de entrada se unam em um formato de tempo real (Timestamp)
+df_gantt['Inicio_Espera'] = pd.to_datetime(df_gantt['Chegada'], format='mixed')
+
+# Calculamos o momento exato em que o atendimento começou (Somando a Entrada + Tempo de Espera)
+df_gantt['Inicio_Atendimento'] = df_gantt['Inicio_Espera'] + pd.to_timedelta(df_gantt['Total Espera segundos'], unit='m')
+# Calculamos o momento exato em que o processo terminou (Somando o início do atendimento + tempo de atendimento)
+df_gantt['Fim_Processo'] = df_gantt['Inicio_Atendimento'] + pd.to_timedelta(df_gantt['Total Atendimento segundos'], unit='m')
+
+# 2. MODELANDO OS DADOS NO FORMATO DO GRÁFICO (LINHA DO TEMPO)
+# Para fazer o Gantt mostrar duas barras na mesma linha (Espera e Atendimento), duplicamos as linhas
+etapa_espera = df_gantt.copy()
+etapa_espera['Inicio'] = etapa_espera['Inicio_Espera']
+etapa_espera['Fim'] = etapa_espera['Inicio_Atendimento']
+etapa_espera['Etapa Do Processo'] = 'Espera'
+
+etapa_atend = df_gantt.copy()
+etapa_atend['Inicio'] = etapa_atend['Inicio_Atendimento']
+etapa_atend['Fim'] = etapa_atend['Fim_Processo']
+etapa_atend['Etapa Do Processo'] = 'Atendimento'
+
+# Juntamos as duas etapas de volta em um único bloco de dados
+df_linha_tempo = pd.concat([etapa_espera, etapa_atend])
+
+# Nota: Substitua 'NCE001' abaixo pelo nome exato da sua primeira coluna (ID do Paciente / Senha)
+# Supondo que a primeira coluna no seu df chame-se 'Senha' ou 'Id'
+nome_coluna_id = df_linha_tempo.columns[0] 
+
+# 3. CONSTRUINDO O GRÁFICO DE LINHA DO TEMPO
+fig_gantt = px.timeline(
+    df_linha_tempo, 
+    x_start="Inicio", 
+    x_end="Fim", 
+    y=nome_coluna_id,           # Cada linha do gráfico será um paciente único (ex: NCE001, NCE002)
+    color="Etapa Do Processo",  # Azul para Espera, Vermelho/Verde para Atendimento
+    title="Linha do Tempo da Jornada por Paciente",
+    labels={"Etapa Do Processo": "Fase", nome_coluna_id: "Código Paciente"},
+    hover_data=["Guiche", "Servico"], # Mostra o guichê e o serviço ao passar o mouse
+    color_discrete_map={"Espera": "#EF553B", "Atendimento": "#00CC96"} # Cores customizadas
+)
+
+# Inverte o eixo Y para que o primeiro paciente do dia (ex: NCE001) apareça no topo do gráfico
+fig_gantt.update_yaxes(autorange="reversed")
+
+# Configurações de layout
+fig_gantt.update_layout(
+    xaxis_title="Horário do Dia",
+    legend_title_text="Legenda",
+)
+
+st.plotly_chart(fig_gantt, use_container_width=True)
