@@ -213,6 +213,7 @@ st.subheader("Linha do Tempo e Jornada do Atendimento (Gantt)")
 Dias=st.multiselect("Selecione uma data para análise da linha do tempo",df_gantt["data"].unique())
 if Dias:
     df_gantt=df_gantt[df_gantt["data"].isin(Dias)]
+    df_gantt = df_gantt.sort_values(by="data")
     Servicos=st.multiselect("Selecione o tipo de Serviço",df_gantt["Servico"].unique())
 if Servicos:
     df_gantt=df_gantt[df_gantt["Servico"].isin(Servicos)]
