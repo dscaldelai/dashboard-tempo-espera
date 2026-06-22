@@ -260,7 +260,7 @@ fig_gantt = px.timeline(
     y=nome_coluna_id,           # Cada linha do gráfico será um paciente único (ex: NCE001, NCE002)
     color="Etapa Do Processo",  # Azul para Espera, Vermelho/Verde para Atendimento
     title="Linha do Tempo da Jornada por Paciente",
-    labels={"Etapa Do Processo": "Fase", nome_coluna_id: "Código Paciente"},
+    labels={"Etapa Do Processo": "Fase", nome_coluna_id: "Código Atendimento"},
     hover_data=["Guiche", "Servico"], # Mostra o guichê e o serviço ao passar o mouse
     color_discrete_map={"Espera": "#EF553B", "Atendimento": "#00CC96"} # Cores customizadas
 )
